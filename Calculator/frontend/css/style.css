@@ -1,0 +1,475 @@
+/**
+ * Scientific Calculator Styles
+ * 
+ * This stylesheet provides the visual design for the scientific calculator.
+ * It uses CSS Grid for layout and CSS variables for theming.
+ */
+
+/* ==================== CSS Variables ==================== */
+:root {
+    /* Color Palette */
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #0f3460;
+    --accent-primary: #e94560;
+    --accent-secondary: #533483;
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8b8;
+    --text-muted: #6c6c6c;
+    
+    /* Button Colors */
+    --btn-number: #2d2d44;
+    --btn-number-hover: #3d3d5c;
+    --btn-operator: #533483;
+    --btn-operator-hover: #6b44a8;
+    --btn-function: #1a4c6b;
+    --btn-function-hover: #2a6c8f;
+    --btn-equals: #e94560;
+    --btn-equals-hover: #ff5a75;
+    --btn-clear: #8b0000;
+    --btn-clear-hover: #b00000;
+    --btn-memory: #2e4057;
+    --btn-memory-hover: #3e5077;
+    
+    /* Display Colors */
+    --display-bg: #0d0d1a;
+    --display-text: #00ff88;
+    --expression-text: #888;
+    
+    /* Sizing */
+    --border-radius: 12px;
+    --btn-radius: 8px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== Reset & Base Styles ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+/* ==================== Calculator Container ==================== */
+.calculator-container {
+    display: flex;
+    gap: var(--spacing-lg);
+    max-width: 1000px;
+    width: 100%;
+}
+
+.calculator {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+    flex: 1;
+    max-width: 500px;
+}
+
+/* ==================== Header ==================== */
+.calculator-header {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.calculator-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.calculator-header .subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ==================== Display Section ==================== */
+.display-section {
+    background: var(--display-bg);
+    border-radius: var(--btn-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.expression {
+    font-size: 0.875rem;
+    color: var(--expression-text);
+    text-align: right;
+    min-height: 1.5em;
+    word-wrap: break-word;
+    margin-bottom: var(--spacing-sm);
+}
+
+.display {
+    width: 100%;
+    background: transparent;
+    border: none;
+    font-size: 2.5rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: var(--display-text);
+    text-align: right;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==================== Mode Toggle ==================== */
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--btn-radius);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+.toggle-label input {
+    display: none;
+}
+
+.toggle-slider {
+    width: 40px;
+    height: 20px;
+    background: var(--btn-number);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.toggle-label input:checked + .toggle-slider {
+    background: var(--accent-primary);
+}
+
+.toggle-label input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+}
+
+.mode-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.mode-indicator {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* ==================== Button Grids ==================== */
+.button-grid {
+    display: grid;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.scientific-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.basic-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.memory-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* ==================== Button Styles ==================== */
+.btn {
+    padding: 12px 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Button Types */
+.btn-number {
+    background: var(--btn-number);
+    color: var(--text-primary);
+}
+
+.btn-number:hover {
+    background: var(--btn-number-hover);
+}
+
+.btn-operator {
+    background: var(--btn-operator);
+    color: var(--text-primary);
+}
+
+.btn-operator:hover {
+    background: var(--btn-operator-hover);
+}
+
+.btn-function {
+    background: var(--btn-function);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+}
+
+.btn-function:hover {
+    background: var(--btn-function-hover);
+}
+
+.btn-equals {
+    background: var(--btn-equals);
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.btn-equals:hover {
+    background: var(--btn-equals-hover);
+}
+
+.btn-clear {
+    background: var(--btn-clear);
+    color: var(--text-primary);
+}
+
+.btn-clear:hover {
+    background: var(--btn-clear-hover);
+}
+
+.btn-memory {
+    background: var(--btn-memory);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.btn-memory:hover {
+    background: var(--btn-memory-hover);
+}
+
+/* ==================== Status Bar ==================== */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#serverStatus.connected {
+    color: #00ff88;
+}
+
+#serverStatus.disconnected {
+    color: #ff4444;
+}
+
+/* ==================== History Panel ==================== */
+.history-panel {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+    width: 250px;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-panel h3 {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: var(--spacing-md);
+}
+
+.history-item {
+    padding: var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border-radius: var(--btn-radius);
+    margin-bottom: var(--spacing-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.history-item:hover {
+    background: var(--btn-function-hover);
+}
+
+.history-expression {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.history-result {
+    font-size: 1rem;
+    color: var(--display-text);
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.no-history {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: var(--spacing-lg);
+}
+
+.btn-clear-history {
+    background: var(--btn-number);
+    color: var(--text-secondary);
+    padding: var(--spacing-sm);
+    font-size: 0.75rem;
+}
+
+.btn-clear-history:hover {
+    background: var(--btn-number-hover);
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+    .calculator-container {
+        flex-direction: column;
+    }
+    
+    .calculator {
+        max-width: 100%;
+    }
+    
+    .history-panel {
+        width: 100%;
+        max-height: 300px;
+    }
+    
+    .btn {
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+    
+    .btn-function {
+        font-size: 0.65rem;
+    }
+    
+    .display {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .scientific-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .memory-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .btn {
+        padding: 8px 4px;
+        font-size: 0.7rem;
+    }
+    
+    .display {
+        font-size: 1.5rem;
+    }
+}
+
+/* ==================== Animations ==================== */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.calculating {
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+/* ==================== Scrollbar Styling ==================== */
+.history-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: var(--btn-operator);
+    border-radius: 3px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: var(--btn-operator-hover);
+}
+
+/* ==================== Error State ==================== */
+.display.error {
+    color: #ff4444;
+}
+
+/* ==================== Waiting for Second Operand ==================== */
+.btn.waiting {
+    animation: pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--accent-primary);
+}
