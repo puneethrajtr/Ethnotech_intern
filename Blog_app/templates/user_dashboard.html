@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Blog Platform{% endblock %}
+
+{% block description %}Manage your blog posts, track approval status, and create new content{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">
+                        <i class="fas fa-tachometer-alt me-2"></i>My Dashboard
+                    </h1>
+                    <p class="text-muted">Welcome back, {{ current_user.username }}! Manage your blog posts and track their status.</p>
+                </div>
+                <a href="{{ url_for('create_post') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create New Post
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ total_posts }}</h4>
+                            <p class="mb-0">Total Posts</p>
+                        </div>
+                        <i class="fas fa-blog fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ approved_count }}</h4>
+                            <p class="mb-0">Published</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ pending_count }}</h4>
+                            <p class="mb-0">Pending</p>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ current_user.role|title }}</h4>
+                            <p class="mb-0">Account Type</p>
+                        </div>
+                        <i class="fas fa-user fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-lg-3">
+                            <a href="{{ url_for('create_post') }}" 
+                               class="btn btn-success w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-plus fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Create Post</div>
+                                    <small>Write a new blog post</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a href="{{ url_for('index') }}" 
+                               class="btn btn-primary w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-eye fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">View Blog</div>
+                                    <small>See published posts</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <button class="btn btn-info w-100 d-flex align-items-center justify-content-center py-3" 
+                                    onclick="location.reload()">
+                                <i class="fas fa-sync fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Refresh</div>
+                                    <small>Update status</small>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a href="{{ url_for('logout') }}" 
+                               class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-sign-out-alt fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Logout</div>
+                                    <small>End session</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts Management -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>My Blog Posts</h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="filterPosts('all')">
+                            <i class="fas fa-list me-1"></i>All
+                        </button>
+                        <button class="btn btn-outline-success btn-sm" onclick="filterPosts('approved')">
+                            <i class="fas fa-check me-1"></i>Published
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="filterPosts('pending')">
+                            <i class="fas fa-clock me-1"></i>Pending
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if posts %}
+                    <!-- Posts Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                <tr data-status="{{ 'approved' if post.is_approved else 'pending' }}">
+                                    <td>
+                                        <div class="fw-bold">{{ post.title }}</div>
+                                        <small class="text-muted">
+                                            {{ post.content|truncate_content(80) }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ post.category }}</span>
+                                    </td>
+                                    <td>
+                                        {% if post.is_approved %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Published
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Pending Approval
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ post.created_at|format_date('%m/%d/%Y') }}</small><br>
+                                        <small class="text-muted">{{ post.created_at|format_date('%I:%M %p') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if post.is_approved %}
+                                            <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                                               class="btn btn-outline-primary" title="View Post">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% endif %}
+                                            <a href="{{ url_for('edit_post', post_id=post.id) }}" 
+                                               class="btn btn-outline-warning" title="Edit Post">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger" title="Delete Post"
+                                                    onclick="confirmDelete({{ post.id }}, '{{ post.title }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% else %}
+                    <!-- No posts message -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-blog fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No blog posts yet</h4>
+                        <p class="text-muted mb-4">Create your first blog post to get started.</p>
+                        <a href="{{ url_for('create_post') }}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Create First Post
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this post?</p>
+                <div class="alert alert-warning">
+                    <strong id="postTitle"></strong>
+                </div>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="deleteConfirmLink" href="#" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Delete Post
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(postId, postTitle) {
+        document.getElementById('postTitle').textContent = postTitle;
+        // Users delete their own posts via the user delete route
+        document.getElementById('deleteConfirmLink').href = 
+            "{{ url_for('delete_post', post_id=0) }}".replace('0', postId);
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        modal.show();
+    }
+
+    function filterPosts(status) {
+        const rows = document.querySelectorAll('tbody tr[data-status]');
+        
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            
+            if (status === 'all' || rowStatus === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Update button states
+        document.querySelectorAll('button[onclick*="filterPosts"]').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+</script>
+{% endblock %}

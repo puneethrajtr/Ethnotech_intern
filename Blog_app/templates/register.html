@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Blog Platform{% endblock %}
+
+{% block description %}Create a new account to start writing and sharing your blog posts{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Create New Account
+                    </h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                        <div class="row">
+                            <!-- Username Field -->
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label fw-bold">
+                                    <i class="fas fa-user me-1"></i>Username *
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="username" 
+                                       name="username" 
+                                       placeholder="Choose a username"
+                                       required
+                                       minlength="3"
+                                       maxlength="20"
+                                       pattern="[a-zA-Z0-9_-]+"
+                                       autocomplete="username">
+                                <div class="form-text">
+                                    3-20 characters, letters, numbers, - and _ only
+                                </div>
+                            </div>
+
+                            <!-- Email Field -->
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-bold">
+                                    <i class="fas fa-envelope me-1"></i>Email *
+                                </label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="your@email.com"
+                                       required
+                                       autocomplete="email">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Password Field -->
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label fw-bold">
+                                    <i class="fas fa-lock me-1"></i>Password *
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="password" 
+                                           name="password" 
+                                           placeholder="Create password"
+                                           required
+                                           minlength="6"
+                                           autocomplete="new-password">
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            onclick="togglePassword('password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    Minimum 6 characters
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password Field -->
+                            <div class="col-md-6 mb-4">
+                                <label for="confirm_password" class="form-label fw-bold">
+                                    <i class="fas fa-lock me-1"></i>Confirm Password *
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="confirm_password" 
+                                           name="confirm_password" 
+                                           placeholder="Confirm password"
+                                           required
+                                           minlength="6"
+                                           autocomplete="new-password">
+                                    <button class="btn btn-outline-secondary" 
+                                            type="button" 
+                                            onclick="togglePassword('confirm_password')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordMatch" class="form-text"></div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       id="terms" 
+                                       required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a>
+                                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Register Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="registerBtn">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p class="text-muted mb-2">Already have an account?</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login Here
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Registration Benefits -->
+                <div class="card-footer bg-light">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-pen text-success fa-2x mb-2"></i>
+                            <small class="d-block text-muted">Write Posts</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-users text-info fa-2x mb-2"></i>
+                            <small class="d-block text-muted">Join Community</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-chart-line text-warning fa-2x mb-2"></i>
+                            <small class="d-block text-muted">Track Progress</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.className = 'fas fa-eye-slash';
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.className = 'fas fa-eye';
+        }
+    }
+    
+    // Password confirmation validation
+    function checkPasswordMatch() {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const matchElement = document.getElementById('passwordMatch');
+        const registerBtn = document.getElementById('registerBtn');
+        
+        if (confirmPassword.length > 0) {
+            if (password === confirmPassword) {
+                matchElement.textContent = 'Passwords match ✓';
+                matchElement.className = 'form-text text-success';
+                registerBtn.disabled = false;
+            } else {
+                matchElement.textContent = 'Passwords do not match ✗';
+                matchElement.className = 'form-text text-danger';
+                registerBtn.disabled = true;
+            }
+        } else {
+            matchElement.textContent = '';
+            registerBtn.disabled = false;
+        }
+    }
+    
+    // Username validation
+    function validateUsername() {
+        const username = document.getElementById('username');
+        const value = username.value;
+        
+        if (value.length > 0) {
+            if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
+                username.setCustomValidity('Username can only contain letters, numbers, hyphens, and underscores');
+            } else if (value.length < 3) {
+                username.setCustomValidity('Username must be at least 3 characters long');
+            } else {
+                username.setCustomValidity('');
+            }
+        }
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const username = document.getElementById('username');
+        
+        password.addEventListener('input', checkPasswordMatch);
+        confirmPassword.addEventListener('input', checkPasswordMatch);
+        username.addEventListener('input', validateUsername);
+        
+        // Focus on username field when page loads
+        username.focus();
+    });
+</script>
+{% endblock %}

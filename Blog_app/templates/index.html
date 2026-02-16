@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - Blog Platform{% endblock %}
+
+{% block description %}Discover amazing blog posts about technology, programming, and more. Search and filter posts by category.{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">{{ page_title }}</h1>
+                    <p class="text-muted">
+                        {% if search_query %}
+                            Showing results for "<strong>{{ search_query }}</strong>" 
+                        {% elif current_category %}
+                            Showing posts in "<strong>{{ current_category }}</strong>" category
+                        {% else %}
+                            Discover amazing articles and insights from our community
+                        {% endif %}
+                        <span class="badge bg-secondary ms-2">{{ posts|length }} post{{ 's' if posts|length != 1 else '' }}</span>
+                    </p>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="d-flex gap-2">
+                    {% if search_query or current_category %}
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Clear Filter
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('admin_create_post') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>New Post
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Search Form -->
+                        <div class="col-md-8">
+                            <form method="GET" action="{{ url_for('search') }}" class="d-flex">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="q" 
+                                           placeholder="Search posts by title..." 
+                                           value="{{ search_query if search_query }}">
+                                    <button class="btn btn-primary" type="submit">Search</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div class="col-md-4">
+                            <select class="form-select" onchange="filterByCategory(this.value)">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category }}" {% if current_category == category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Posts -->
+    {% if posts %}
+    <div class="row">
+        {% for post in posts %}
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="card h-100 shadow-sm blog-card">
+                <div class="card-header bg-light border-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="badge bg-primary rounded-pill">{{ post.category }}</span>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ post.created_at|format_date('%b %d, %Y') }}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title fw-bold mb-3">
+                        <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                           class="text-decoration-none text-dark stretched-link">
+                            {{ post.title }}
+                        </a>
+                    </h5>
+                    
+                    <p class="card-text text-muted mb-3 flex-grow-1">
+                        {{ post.content|truncate_content(150) }}
+                    </p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <div class="d-flex align-items-center">
+                            <div class="author-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                 style="width: 32px; height: 32px; font-size: 14px;">
+                                {{ post.author_name[0].upper() }}
+                            </div>
+                            <small class="text-muted">
+                                <strong>{{ post.author_name }}</strong>
+                            </small>
+                        </div>
+                        
+                        <div class="text-end">
+                            <small class="text-muted">
+                                {{ post.created_at|format_date('%I:%M %p') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                           class="btn btn-outline-primary btn-sm flex-grow-1">
+                            <i class="fas fa-eye me-1"></i>Read More
+                        </a>
+                        {% if session.get('user_id') %}
+                            {% if session.get('is_admin') or post.user_id == session.get('user_id') %}
+                                {% if session.get('is_admin') %}
+                                <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('edit_post', post_id=post.id) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination placeholder (can be implemented later) -->
+    {% if posts|length > 9 %}
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-center">
+            <nav aria-label="Blog posts pagination">
+                <ul class="pagination">
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- No Posts Found -->
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <div class="card border-0">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h3 class="text-muted">No posts found</h3>
+                    <p class="text-muted mb-4">
+                        {% if search_query %}
+                            No posts match your search for "<strong>{{ search_query }}</strong>".
+                        {% elif current_category %}
+                            No posts found in the "<strong>{{ current_category }}</strong>" category.
+                        {% else %}
+                            There are no blog posts yet.
+                        {% endif %}
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        {% if search_query or current_category %}
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-1"></i>View All Posts
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin_create_post') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Create First Post
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function filterByCategory(category) {
+        if (category) {
+            window.location.href = "{{ url_for('filter_by_category', category='') }}" + encodeURIComponent(category);
+        } else {
+            window.location.href = "{{ url_for('index') }}";
+        }
+    }
+</script>
+{% endblock %}

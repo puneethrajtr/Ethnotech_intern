@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }} - Blog Platform{% endblock %}
+
+{% block description %}{{ form_title }} - Create and manage your blog content with our easy-to-use editor.{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('admin_dashboard') }}" class="text-decoration-none">
+                            <i class="fas fa-tachometer-alt me-1"></i>Admin
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {{ 'Edit Post' if post else 'Create Post' }}
+                    </li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="fas fa-{{ 'edit' if post else 'plus' }} me-2"></i>{{ form_title }}
+                    </h1>
+                    <p class="text-muted">
+                        {{ 'Update your blog post content and settings' if post else 'Share your thoughts and knowledge with the world' }}
+                    </p>
+                </div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-{{ 'edit' if post else 'plus-circle' }} me-2"></i>
+                        {{ 'Edit Blog Post' if post else 'Create New Blog Post' }}
+                    </h5>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" action="{{ form_action }}" id="blogPostForm">
+                        <!-- Title Field -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">
+                                <i class="fas fa-heading me-1"></i>Post Title *
+                            </label>
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   id="title" 
+                                   name="title" 
+                                   value="{{ post.title if post else (form_data.title if form_data else '') }}"
+                                   placeholder="Enter an engaging title for your post"
+                                   required
+                                   maxlength="200">
+                            <div class="form-text">
+                                A compelling title helps readers understand what your post is about.
+                            </div>
+                        </div>
+
+                        <!-- Author Field -->
+                        <div class="mb-4">
+                            <label for="author_name" class="form-label fw-bold">
+                                <i class="fas fa-user me-1"></i>Author Name *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="author_name" 
+                                   name="author_name" 
+                                   value="{{ post.author_name if post else (form_data.author_name if form_data else '') }}"
+                                   placeholder="Enter the author's name"
+                                   required
+                                   maxlength="100">
+                        </div>
+
+                        <!-- Category Field -->
+                        <div class="mb-4">
+                            <label for="category" class="form-label fw-bold">
+                                <i class="fas fa-folder me-1"></i>Category *
+                            </label>
+                            <div class="input-group">
+                                <select class="form-select" id="categorySelect" onchange="handleCategoryChange()">
+                                    <option value="">Choose existing category...</option>
+                                    {% if categories %}
+                                        {% for category in categories %}
+                                        <option value="{{ category }}" 
+                                                {% if (post and post.category == category) or (form_data and form_data.category == category) %}selected{% endif %}>
+                                            {{ category }}
+                                        </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <option value="__new__">+ Create new category</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" onclick="toggleNewCategory()">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Custom category input (hidden by default) -->
+                            <input type="text" 
+                                   class="form-control mt-2 d-none" 
+                                   id="category" 
+                                   name="category" 
+                                   value="{{ post.category if post else (form_data.category if form_data else '') }}"
+                                   placeholder="Enter category name"
+                                   maxlength="50">
+                            
+                            <div class="form-text">
+                                Categories help organize your posts. Choose an existing one or create a new category.
+                            </div>
+                        </div>
+
+                        <!-- Content Field -->
+                        <div class="mb-4">
+                            <label for="content" class="form-label fw-bold">
+                                <i class="fas fa-align-left me-1"></i>Content *
+                            </label>
+                            <textarea class="form-control" 
+                                      id="content" 
+                                      name="content" 
+                                      rows="15"
+                                      placeholder="Write your blog post content here. You can use multiple paragraphs...
+                                      
+For a new paragraph, leave a blank line.
+
+You can write as much as you want - share your knowledge and insights!"
+                                      required>{{ post.content if post else (form_data.content if form_data else '') }}</textarea>
+                            <div class="form-text d-flex justify-content-between align-items-center">
+                                <span>Write engaging content that provides value to your readers.</span>
+                                <small class="text-muted">
+                                    <span id="wordCount">0</span> words | <span id="charCount">0</span> characters
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>Cancel
+                                        </a>
+                                        {% if post %}
+                                        <a href="{{ url_for('post_detail', post_id=post.id) }}" class="btn btn-outline-info">
+                                            <i class="fas fa-eye me-1"></i>Preview
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-{{ 'warning' if post else 'success' }} btn-lg">
+                                        <i class="fas fa-{{ 'save' if post else 'plus' }} me-2"></i>
+                                        {{ 'Update Post' if post else 'Create Post' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar with Tips -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 2rem;">
+                <!-- Writing Tips -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-lightbulb me-1"></i>Writing Tips</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Use a clear, descriptive title</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Break content into paragraphs</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Choose an appropriate category</small>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Provide value to your readers</small>
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <small>Proofread before publishing</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Post Statistics (if editing) -->
+                {% if post %}
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-chart-bar me-1"></i>Post Statistics</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="h4 text-primary mb-0">{{ post.content.split()|length }}</div>
+                                <small class="text-muted">Words</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="h4 text-info mb-0">{{ post.content|length }}</div>
+                                <small class="text-muted">Characters</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <small class="text-muted d-block">
+                            <strong>Created:</strong> {{ post.created_at|format_date('%B %d, %Y at %I:%M %p') }}
+                        </small>
+                        <small class="text-muted d-block">
+                            <strong>Post ID:</strong> #{{ post.id }}
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Word and character count
+    function updateCounts() {
+        const content = document.getElementById('content').value;
+        const wordCount = content.trim() === '' ? 0 : content.trim().split(/\s+/).length;
+        const charCount = content.length;
+        
+        document.getElementById('wordCount').textContent = wordCount;
+        document.getElementById('charCount').textContent = charCount;
+    }
+
+    // Category handling
+    function handleCategoryChange() {
+        const select = document.getElementById('categorySelect');
+        const input = document.getElementById('category');
+        
+        if (select.value === '__new__') {
+            toggleNewCategory();
+        } else if (select.value === '') {
+            input.classList.add('d-none');
+            input.value = '';
+        } else {
+            input.classList.add('d-none');
+            input.value = select.value;
+        }
+    }
+
+    function toggleNewCategory() {
+        const input = document.getElementById('category');
+        const select = document.getElementById('categorySelect');
+        
+        if (input.classList.contains('d-none')) {
+            input.classList.remove('d-none');
+            input.focus();
+            select.value = '__new__';
+        } else {
+            input.classList.add('d-none');
+            select.value = '';
+        }
+    }
+
+    // Form validation
+    function validateForm() {
+        const title = document.getElementById('title').value.trim();
+        const content = document.getElementById('content').value.trim();
+        const authorName = document.getElementById('author_name').value.trim();
+        const category = document.getElementById('category').value.trim();
+        
+        if (!title || !content || !authorName || !category) {
+            alert('Please fill in all required fields.');
+            return false;
+        }
+        
+        if (title.length < 5) {
+            alert('Title must be at least 5 characters long.');
+            return false;
+        }
+        
+        if (content.length < 50) {
+            alert('Content must be at least 50 characters long.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        const contentTextarea = document.getElementById('content');
+        const form = document.getElementById('blogPostForm');
+        const categoryInput = document.getElementById('category');
+        
+        // Update counts on load and input
+        updateCounts();
+        contentTextarea.addEventListener('input', updateCounts);
+        
+        // Set up category field
+        if (categoryInput.value) {
+            categoryInput.classList.remove('d-none');
+        }
+        
+        // Form validation
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
+        
+        // Auto-resize textarea
+        contentTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+</script>
+{% endblock %}

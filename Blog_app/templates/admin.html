@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Blog Platform{% endblock %}
+
+{% block description %}Admin dashboard for managing blog posts - create, edit, and delete posts.{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Dashboard Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="display-5 fw-bold text-primary mb-2">
+                        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                    </h1>
+                    <p class="text-muted">Manage your blog posts and monitor site statistics</p>
+                </div>
+                <a href="{{ url_for('admin_create_post') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create New Post
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ total_posts }}</h4>
+                            <p class="mb-0">Total Posts</p>
+                        </div>
+                        <i class="fas fa-blog fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ pending_count }}</h4>
+                            <p class="mb-0">Pending Approval</p>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ categories|length }}</h4>
+                            <p class="mb-0">Categories</p>
+                        </div>
+                        <i class="fas fa-folder fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Active</h4>
+                            <p class="mb-0">System Status</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Posts Alert -->
+    {% if pending_count > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>{{ pending_count }} post{{ 's' if pending_count != 1 else '' }} pending approval!</strong>
+                Review and approve user submissions below.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-lg-3">
+                            <a href="{{ url_for('admin_create_post') }}" 
+                               class="btn btn-success w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-plus fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Create Post</div>
+                                    <small>Write a new blog post</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a href="{{ url_for('index') }}" 
+                               class="btn btn-primary w-100 d-flex align-items-center justify-content-center py-3">
+                                <i class="fas fa-eye fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">View Site</div>
+                                    <small>See live blog</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <button class="btn btn-info w-100 d-flex align-items-center justify-content-center py-3" 
+                                    onclick="exportPosts()">
+                                <i class="fas fa-download fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Export</div>
+                                    <small>Download posts data</small>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <button class="btn btn-secondary w-100 d-flex align-items-center justify-content-center py-3"
+                                    onclick="location.reload()">
+                                <i class="fas fa-sync fa-lg me-2"></i>
+                                <div>
+                                    <div class="fw-bold">Refresh</div>
+                                    <small>Reload dashboard</small>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts Management -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Blog Posts</h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="toggleView()">
+                            <i class="fas fa-th-list me-1"></i>Toggle View
+                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-info btn-sm active" onclick="filterPosts('', 'all')">
+                                All Posts
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="filterPosts('', 'approved')">
+                                <i class="fas fa-check me-1"></i>Published
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="filterPosts('', 'pending')">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </button>
+                        </div>
+                        <select class="form-select form-select-sm" style="width: auto;" onchange="filterPosts(this.value, '')">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    {% if posts %}
+                    <!-- Table View (default) -->
+                    <div id="tableView" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                <tr data-category="{{ post.category }}" data-status="{{ 'approved' if post.is_approved else 'pending' }}">
+                                    <td class="fw-bold">#{{ post.id }}</td>
+                                    <td>
+                                        <a href="{{ url_for('post_detail', post_id=post.id) if post.is_approved else '#' }}" 
+                                           class="text-decoration-none fw-bold {{ 'text-muted' if not post.is_approved else '' }}">
+                                            {{ post.title[:50] }}{% if post.title|length > 50 %}...{% endif %}
+                                        </a>
+                                    </td>
+                                    <td>{{ post.author_name }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ post.category }}</span>
+                                    </td>
+                                    <td>
+                                        {% if post.is_approved %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Published
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ post.created_at|format_date('%m/%d/%Y %I:%M %p') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if post.is_approved %}
+                                                <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                                                   class="btn btn-outline-primary" title="View Post">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ url_for('approve_post', post_id=post.id) }}" 
+                                                   class="btn btn-outline-success" title="Approve Post">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                <a href="{{ url_for('reject_post', post_id=post.id) }}" 
+                                                   class="btn btn-outline-danger" title="Reject Post">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            {% endif %}
+                                            
+                                            <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" 
+                                               class="btn btn-outline-warning" title="Edit Post">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger" title="Delete Post"
+                                                    onclick="confirmDelete({{ post.id }}, '{{ post.title }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Card View (hidden by default) -->
+                    <div id="cardView" class="d-none">
+                        <div class="row">
+                            {% for post in posts %}
+                            <div class="col-lg-6 col-xl-4 mb-3" data-category="{{ post.category }}" data-status="{{ 'approved' if post.is_approved else 'pending' }}">
+                                <div class="card border">
+                                    <div class="card-header bg-light py-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex gap-2">
+                                                <span class="badge bg-primary">{{ post.category }}</span>
+                                                {% if post.is_approved %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>Published
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i>Pending
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">#{{ post.id }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-2">
+                                            <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                                               class="text-decoration-none">
+                                                {{ post.title }}
+                                            </a>
+                                        </h6>
+                                        <p class="card-text small text-muted mb-2">
+                                            {{ post.content|truncate_content(80) }}
+                                        </p>
+                                        <small class="text-muted">
+                                            By {{ post.author_name }} • {{ post.created_at|format_date('%m/%d/%Y') }}
+                                        </small>
+                                    </div>
+                                    <div class="card-footer bg-transparent py-2">
+                                        {% if post.is_approved %}
+                                            <div class="btn-group w-100">
+                                                <a href="{{ url_for('post_detail', post_id=post.id) }}" 
+                                                   class="btn btn-outline-primary btn-sm">View</a>
+                                                <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" 
+                                                   class="btn btn-outline-warning btn-sm">Edit</a>
+                                                <button class="btn btn-outline-danger btn-sm"
+                                                        onclick="confirmDelete({{ post.id }}, '{{ post.title }}')">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        {% else %}
+                                            <div class="d-grid gap-1">
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('approve_post', post_id=post.id) }}" 
+                                                       class="btn btn-success btn-sm">
+                                                        <i class="fas fa-check me-1"></i>Approve
+                                                    </a>
+                                                    <a href="{{ url_for('reject_post', post_id=post.id) }}" 
+                                                       class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-times me-1"></i>Reject
+                                                    </a>
+                                                </div>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" 
+                                                       class="btn btn-outline-warning btn-sm">
+                                                        <i class="fas fa-edit me-1"></i>Edit
+                                                    </a>
+                                                    <button class="btn btn-outline-danger btn-sm"
+                                                            onclick="confirmDelete({{ post.id }}, '{{ post.title }}')">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% else %}
+                    <!-- No posts message -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-blog fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No blog posts yet</h4>
+                        <p class="text-muted mb-4">Create your first blog post to get started.</p>
+                        <a href="{{ url_for('admin_create_post') }}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Create First Post
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this post?</p>
+                <div class="alert alert-warning">
+                    <strong id="postTitle"></strong>
+                </div>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="deleteConfirmLink" href="#" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Delete Post
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(postId, postTitle) {
+        document.getElementById('postTitle').textContent = postTitle;
+        document.getElementById('deleteConfirmLink').href = 
+            "{{ url_for('admin_delete_post', post_id=0) }}".replace('0', postId);
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        modal.show();
+    }
+
+    function toggleView() {
+        const tableView = document.getElementById('tableView');
+        const cardView = document.getElementById('cardView');
+        
+        if (tableView.classList.contains('d-none')) {
+            tableView.classList.remove('d-none');
+            cardView.classList.add('d-none');
+        } else {
+            tableView.classList.add('d-none');
+            cardView.classList.remove('d-none');
+        }
+    }
+
+    function filterPosts(category, status) {
+        const tableRows = document.querySelectorAll('#tableView tbody tr');
+        const cardItems = document.querySelectorAll('#cardView .col-lg-6');
+        
+        [...tableRows, ...cardItems].forEach(item => {
+            const itemCategory = item.dataset.category;
+            const itemStatus = item.dataset.status;
+            
+            let showItem = true;
+            
+            // Filter by category
+            if (category && itemCategory !== category) {
+                showItem = false;
+            }
+            
+            // Filter by status
+            if (status && status !== 'all' && itemStatus !== status) {
+                showItem = false;
+            }
+            
+            item.style.display = showItem ? '' : 'none';
+        });
+        
+        // Update filter button states
+        if (status) {
+            document.querySelectorAll('.btn-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (status === 'all') {
+                document.querySelector('button[onclick*="all"]').classList.add('active');
+            } else if (status === 'approved') {
+                document.querySelector('button[onclick*="approved"]').classList.add('active');
+            } else if (status === 'pending') {
+                document.querySelector('button[onclick*="pending"]').classList.add('active');
+            }
+        }
+    }
+
+    function exportPosts() {
+        // Simple export functionality - in a real app, this would call an API
+        const posts = {{ posts_dict|tojson }};
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(posts, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "blog_posts.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+</script>
+{% endblock %}

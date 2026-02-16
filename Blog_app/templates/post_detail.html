@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Blog Platform{% endblock %}
+
+{% block description %}{{ post.content|truncate_content(160) }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Back Navigation -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('index') }}" class="text-decoration-none">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('filter_by_category', category=post.category) }}" 
+                           class="text-decoration-none">
+                            {{ post.category }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Post Content -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <article class="card shadow">
+                <!-- Post Header -->
+                <div class="card-header bg-light border-0 py-4">
+                    <div class="text-center">
+                        <span class="badge bg-primary fs-6 mb-3">{{ post.category }}</span>
+                        <h1 class="display-6 fw-bold text-dark mb-4">{{ post.title }}</h1>
+                        
+                        <!-- Author and Date Info -->
+                        <div class="d-flex justify-content-center align-items-center gap-4 text-muted">
+                            <div class="d-flex align-items-center">
+                                <div class="author-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                     style="width: 40px; height: 40px;">
+                                    {{ post.author_name[0].upper() }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ post.author_name }}</div>
+                                    <small>Author</small>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="fw-bold">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    {{ post.created_at|format_date('%B %d, %Y') }}
+                                </div>
+                                <small>{{ post.created_at|format_date('%I:%M %p') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="card-body px-4 py-5">
+                    <div class="post-content">
+                        <!-- Convert newlines to paragraphs -->
+                        {% set content_paragraphs = post.content.split('\n\n') %}
+                        {% for paragraph in content_paragraphs %}
+                            {% if paragraph.strip() %}
+                                <p class="mb-4 lh-lg">{{ paragraph.strip()|replace('\n', '<br>')|safe }}</p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Post Footer with Actions -->
+                <div class="card-footer bg-light border-0 py-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <!-- Social Share Buttons (placeholder) -->
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="sharePost('twitter')">
+                                <i class="fab fa-twitter me-1"></i>Share
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="sharePost('linkedin')">
+                                <i class="fab fa-linkedin me-1"></i>Share
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="copyLink()">
+                                <i class="fas fa-link me-1"></i>Copy Link
+                            </button>
+                        </div>
+                        
+                        <!-- Post Actions (Only for post owner or admin) -->
+                        {% if session.get('user_id') %}
+                            {% if session.get('is_admin') or post.user_id == session.get('user_id') %}
+                            <div class="d-flex gap-2">
+                                {% if session.get('is_admin') %}
+                                <a href="{{ url_for('admin_edit_post', post_id=post.id) }}" 
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit Post
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="confirmDelete({{ post.id }}, '{{ post.title }}', true)">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                                {% else %}
+                                <a href="{{ url_for('edit_post', post_id=post.id) }}" 
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit My Post
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="confirmDelete({{ post.id }}, '{{ post.title }}', false)">
+                                    <i class="fas fa-trash me-1"></i>Delete My Post
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 2rem;">
+                <!-- Post Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-1"></i>Post Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <small class="d-block mb-2">
+                            <strong>Published:</strong> {{ post.created_at|format_date() }}
+                        </small>
+                        <small class="d-block mb-2">
+                            <strong>Author:</strong> {{ post.author_name }}
+                        </small>
+                        <small class="d-block mb-2">
+                            <strong>Category:</strong> 
+                            <a href="{{ url_for('filter_by_category', category=post.category) }}" 
+                               class="text-decoration-none">{{ post.category }}</a>
+                        </small>
+                        <small class="d-block">
+                            <strong>Word Count:</strong> {{ post.content.split()|length }} words
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Navigation Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-compass me-1"></i>Navigation</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i>Back to All Posts
+                            </a>
+                            <a href="{{ url_for('filter_by_category', category=post.category) }}" 
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-folder me-1"></i>More in {{ post.category }}
+                            </a>
+                            <a href="{{ url_for('admin_create_post') }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus me-1"></i>Create New Post
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this post?</p>
+                <div class="alert alert-warning">
+                    <strong id="postTitle"></strong>
+                </div>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="deleteConfirmLink" href="#" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>Delete Post
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(postId, postTitle, isAdmin = false) {
+        document.getElementById('postTitle').textContent = postTitle;
+        
+        if (isAdmin) {
+            document.getElementById('deleteConfirmLink').href = 
+                "{{ url_for('admin_delete_post', post_id=0) }}".replace('0', postId);
+        } else {
+            document.getElementById('deleteConfirmLink').href = 
+                "{{ url_for('delete_post', post_id=0) }}".replace('0', postId);
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        modal.show();
+    }
+
+    function sharePost(platform) {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent("{{ post.title }}");
+        const text = encodeURIComponent("Check out this blog post: {{ post.title }}");
+        
+        let shareUrl = '';
+        
+        if (platform === 'twitter') {
+            shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        } else if (platform === 'linkedin') {
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        }
+        
+        if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+        }
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(function() {
+            // Show a temporary success message
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            btn.classList.remove('btn-outline-success');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-success');
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
+{% endblock %}
