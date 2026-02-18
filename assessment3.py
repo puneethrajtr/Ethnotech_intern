@@ -11,16 +11,16 @@ def name_format(people):
     formatted = []
     for person in people:
         title = "Mr." if person[3] == "M" else "Ms."
-        formatted.append(f"{title} {person[0]} {person[1]}")
+        formatted.append(f"{title} {person[0]} {person[1]} {person[2]} {person[3]}")
     return formatted
 
 
 # Input handling
-n = int(input())
+n = int(input('Enter the number person:'))
 people = []
 
 for _ in range(n):
-    people.append(input().split())
+    people.append(input("Enter the details of person:").split())
 
 # Call function and print output
 result = name_format(people)
