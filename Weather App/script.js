@@ -5,7 +5,7 @@ async function getWeather() {
     return;
   }
 
-  let apiKey = "123f8d3104642907a26229e9ccedbdff"; // replace with your real key
+  let apiKey = "Enter Your API-Key"; // replace with your real key
   let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
   try {
@@ -28,3 +28,4 @@ async function getWeather() {
     document.getElementById("result").innerHTML = "⚠ Something went wrong!";
   }
 }
+
