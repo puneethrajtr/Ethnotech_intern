@@ -6,7 +6,7 @@ conn = mysql.connector.connect(
     host="localhost",
     user="root",
     password="",
-    database="yor_db"
+    database="your_db"
 )
 
 cursor = conn.cursor()
@@ -77,4 +77,5 @@ while True:
 
 # Close connection
 cursor.close()
+
 conn.close()
