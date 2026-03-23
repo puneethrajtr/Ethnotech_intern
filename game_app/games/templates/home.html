@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Gaming Platform{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome to Gaming Platform!</h2>
+    
+    {% if user.is_authenticated %}
+        <p>Hello, <strong>{{ user.username }}</strong>! Ready to play some games?</p>
+        
+        <div style="margin-top: 30px;">
+            <h3>Your Stats</h3>
+            <p><strong>Total Score:</strong> {{ user.profile.total_score }}</p>
+            <p><strong>Games Played:</strong> {{ user.profile.games_played }}</p>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3>Available Games</h3>
+            <div style="display: flex; gap: 20px; margin-top: 15px;">
+                <div style="flex: 1; padding: 20px; background: #ecf0f1; border-radius: 8px;">
+                    <h4>FizzBuzz</h4>
+                    <p>Test your math skills! Enter the correct FizzBuzz sequence.</p>
+                    <p><strong>Scoring:</strong> +10 points per correct answer</p>
+                    <a href="{% url 'fizzbuzz_game' %}" class="btn" style="margin-top: 10px;">Play FizzBuzz</a>
+                </div>
+                
+                <div style="flex: 1; padding: 20px; background: #ecf0f1; border-radius: 8px;">
+                    <h4>TicTacToe</h4>
+                    <p>Play against the computer in classic TicTacToe!</p>
+                    <p><strong>Scoring:</strong> Win: +50 | Draw: +10</p>
+                    <a href="{% url 'tictactoe_game' %}" class="btn" style="margin-top: 10px;">Play TicTacToe</a>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="{% url 'leaderboard' %}" class="btn btn-success">View Leaderboard</a>
+        </div>
+    {% else %}
+        <p>Welcome to our gaming platform! Please log in or register to start playing.</p>
+        
+        <div style="margin-top: 30px;">
+            <h3>Available Games</h3>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li><strong>FizzBuzz:</strong> Test your math and pattern recognition skills</li>
+                <li><strong>TicTacToe:</strong> Challenge the computer in this classic game</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="{% url 'login' %}" class="btn">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-success">Register</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

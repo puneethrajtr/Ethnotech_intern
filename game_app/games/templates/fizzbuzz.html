@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}FizzBuzz Game - Gaming Platform{% endblock %}
+
+{% block content %}
+{% if game_over_popup %}
+<style>
+    .game-over-popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #e74c3c;
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-weight: bold;
+        z-index: 1000;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        animation: hidePopup 3s forwards;
+    }
+
+    @keyframes hidePopup {
+        0%, 80% {
+            opacity: 1;
+            visibility: visible;
+        }
+        100% {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+</style>
+<div class="game-over-popup">{{ game_over_popup }}</div>
+{% endif %}
+
+<div class="card">
+    <h2>FizzBuzz Game</h2>
+    
+    <div style="margin-bottom: 30px;">
+        <h3>Game Rules:</h3>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>If the number is divisible by 3, enter <strong>FIZZ</strong></li>
+            <li>If the number is divisible by 5, enter <strong>BUZZ</strong></li>
+            <li>If the number is divisible by both 3 and 5, enter <strong>FIZZBUZZ</strong></li>
+            <li>Otherwise, enter the number itself</li>
+            <li>Each correct answer gives you <strong>+10 points</strong></li>
+            <li>Wrong answer ends the game!</li>
+        </ul>
+    </div>
+    
+    <div style="background: #ecf0f1; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+        <p style="font-size: 18px; margin-bottom: 10px;">Current Score:</p>
+        <p class="score">{{ current_score }}</p>
+    </div>
+    
+    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+        <p style="font-size: 18px; margin-bottom: 10px;">Current Number:</p>
+        <p style="font-size: 36px; font-weight: bold; color: #2c3e50;">{{ current_number }}</p>
+    </div>
+    
+    <form method="post" style="text-align: center;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.answer.id_for_label }}" style="font-size: 18px; display: block; margin-bottom: 10px;">
+                Your Answer:
+            </label>
+            {{ form.answer }}
+            {% if form.answer.errors %}
+                <ul class="errorlist">
+                    {% for error in form.answer.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-success">Submit Answer</button>
+            <a href="{% url 'fizzbuzz_reset' %}" class="btn btn-danger">Reset Game</a>
+        </div>
+    </form>
+    
+    <div style="margin-top: 30px;">
+        <a href="{% url 'home' %}" class="btn">Back to Home</a>
+    </div>
+</div>
+{% endblock %}
