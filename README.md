@@ -1,4 +1,4 @@
-# 💻 Ethnotech Internship Projects
+# 💻 Ethnotech Academy Internship Projects
 
 ## 📌 Repository Overview
 
