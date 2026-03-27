@@ -1,0 +1,11 @@
+OrderID,CustomerID,Product,Category,Price,Quantity,OrderDate,City
+1,101,Laptop,Electronics,50000,1,2024-01-10,Bangalore
+2,102,Mobile,Electronics,20000,2,2024-01-11,Mysore
+3,103,Shirt,Clothing,1500,3,2024-02-05,Bangalore
+4,104,Shoes,Footwear,3000,2,2024-02-15,Mumbai
+5,101,Laptop,Electronics,50000,1,2024-03-10,Bangalore
+6,105,Watch,Accessories,5000,1,2024-03-12,Delhi
+7,106,Mobile,Electronics,20000,1,2024-04-01,Chennai
+8,107,Shirt,Clothing,1500,2,2024-04-10,Bangalore
+9,108,Shoes,Footwear,3000,1,2024-05-05,Mumbai
+10,109,Laptop,Electronics,50000,1,2024-05-20,Delhi
