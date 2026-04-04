@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --text: #1f2a24;
+  --muted: #6a756f;
+  --bg: #ecebe5;
+  --panel: #ffffff;
+  --panel-strong: #f6f5f2;
+  --border: rgba(31, 42, 36, 0.12);
+  --accent: #1ea45a;
+  --success: #1aa567;
+  --danger: #e0504b;
+  --shadow: 0 24px 60px rgba(31, 42, 36, 0.12);
+  --wa-shell: #f4f3ef;
+  --wa-chat-bg: #efeae2;
+
+  --sans: 'Manrope', 'Segoe UI', sans-serif;
+  --mono: 'DM Mono', 'Segoe UI', monospace;
+
+  font: 16px/150% var(--sans);
+  letter-spacing: 0.2px;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(30, 164, 90, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(35, 140, 95, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 85%, rgba(255, 255, 255, 0.7), transparent 45%),
+    var(--bg);
+}
+
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100svh;
+}
+
+h1,
+h2 {
+  font-family: var(--sans);
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #0e1a14;
+}
+
+h1 {
+  font-size: clamp(32px, 4vw, 54px);
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: 20px;
+  letter-spacing: -0.2px;
+}
+
+p {
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
