@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pro Pricing UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .toggle {
+            margin-bottom: 30px;
+        }
+
+        .toggle span {
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            background: #555;
+            border-radius: 25px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: 0.4s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 2.5px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            background: #00c6ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Cards Container (Horizontal always) */
+        .container {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: nowrap; /* force horizontal */
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            width: 260px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+
+            transition: all 0.35s ease;
+        }
+
+        /* Hover Animation */
+        .card:hover {
+            transform: translateY(-15px) scale(1.06);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .card h2 {
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        ul {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        ul li {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Highlight Card */
+        .highlight {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .highlight button {
+            background: white;
+            color: #333;
+        }
+
+        /* Badge */
+        .badge {
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: #ff4757;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Our Pricing</h1>
+
+    <!-- Toggle -->
+    <div class="toggle">
+        <span>Monthly</span>
+        <label class="switch">
+            <input type="checkbox">
+            <span class="slider"></span>
+        </label>
+        <span>Yearly</span>
+    </div>
+
+    <div class="container">
+
+        <!-- Basic -->
+        <div class="card">
+            <h2>Basic</h2>
+            <p class="price">₹199</p>
+            <ul>
+                <li>1 User</li>
+                <li>5GB Storage</li>
+                <li>Email Support</li>
+            </ul>
+            <button>Get Started</button>
+        </div>
+
+        <!-- Standard -->
+        <div class="card highlight">
+            <div class="badge">Most Popular</div>
+            <h2>Standard</h2>
+            <p class="price">₹499</p>
+            <ul>
+                <li>5 Users</li>
+                <li>50GB Storage</li>
+                <li>Priority Support</li>
+            </ul>
+            <button>Get Started</button>
+        </div>
+
+        <!-- Premium -->
+        <div class="card">
+            <h2>Premium</h2>
+            <p class="price">₹999</p>
+            <ul>
+                <li>Unlimited Users</li>
+                <li>200GB Storage</li>
+                <li>24/7 Support</li>
+            </ul>
+            <button>Get Started</button>
+        </div>
+
+    </div>
+
+</body>
+</html>
