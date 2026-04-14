@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Live Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            color: #00f7ff;
+            transition: 0.3s;
+        }
+
+        /* Light Mode */
+        body.light {
+            background: #f1f5f9;
+            color: #111;
+        }
+
+        .clock-container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0,255,255,0.2);
+        }
+
+        .time {
+            font-size: 60px;
+            letter-spacing: 2px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .date {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00f7ff; }
+            to { text-shadow: 0 0 25px #00f7ff; }
+        }
+
+        .toggle-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+        }
+
+        .zones {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .zones p {
+            margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="clock-container">
+        <div class="time" id="time">00:00:00 AM</div>
+        <div class="date" id="date">Loading...</div>
+
+        <button class="toggle-btn" onclick="toggleMode()">Toggle Theme</button>
+
+        <div class="zones">
+            <p><b>India:</b> <span id="india"></span></p>
+            <p><b>New York:</b> <span id="ny"></span></p>
+            <p><b>London:</b> <span id="london"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function formatTime(date) {
+            let h = date.getHours();
+            let m = date.getMinutes();
+            let s = date.getSeconds();
+
+            let ampm = h >= 12 ? "PM" : "AM";
+            h = h % 12 || 12;
+
+            h = h < 10 ? "0" + h : h;
+            m = m < 10 ? "0" + m : m;
+            s = s < 10 ? "0" + s : s;
+
+            return `${h}:${m}:${s} ${ampm}`;
+        }
+
+        function updateClock() {
+            let now = new Date();
+
+            // Main clock
+            document.getElementById("time").innerText = formatTime(now);
+
+            // Date
+            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("date").innerText = now.toLocaleDateString(undefined, options);
+
+            // Time zones
+            document.getElementById("india").innerText =
+                formatTime(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+
+            document.getElementById("ny").innerText =
+                formatTime(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+
+            document.getElementById("london").innerText =
+                formatTime(new Date().toLocaleString("en-US", { timeZone: "Europe/London" }));
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle("light");
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+
+</body>
+</html>
