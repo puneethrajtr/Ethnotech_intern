@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expanding Cards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #111;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .panel {
+            flex: 0.5;
+            height: 400px;
+            margin: 10px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            position: relative;
+            transition: flex 0.5s ease-in;
+        }
+
+        .panel.active {
+            flex: 3;
+        }
+
+        .panel h3 {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .panel.active h3 {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="container"></div>
+
+    <script>
+        const container = document.getElementById("container");
+
+        // Generate random image panels
+        for (let i = 0; i < 5; i++) {
+            const panel = document.createElement("div");
+            panel.classList.add("panel");
+
+            // Random image
+            panel.style.backgroundImage = `url('https://picsum.photos/800/600?random=${i}')`;
+
+            // Title
+            const title = document.createElement("h3");
+            title.innerText = "Image " + (i + 1);
+
+            panel.appendChild(title);
+            container.appendChild(panel);
+
+            // Click event
+            panel.addEventListener("click", () => {
+                removeActive();
+                panel.classList.add("active");
+            });
+        }
+
+        function removeActive() {
+            const panels = document.querySelectorAll(".panel");
+            panels.forEach(p => p.classList.remove("active"));
+        }
+
+        // Set first active by default
+        document.querySelectorAll(".panel")[0].classList.add("active");
+    </script>
+
+</body>
+</html>
